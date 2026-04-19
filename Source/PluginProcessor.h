@@ -48,6 +48,7 @@ public:
 
     std::atomic<float> correlation{0.0f};
     std::atomic<float> minCorrelation{2.0f};   // 2.0 == "no data since last transport start"
+    std::atomic<bool>  hasSignal{false};       // true while smoothed L²+R² is above silence
 
 private:
     double corrLL{0.0}, corrRR{0.0}, corrLR{0.0};

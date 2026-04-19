@@ -31,6 +31,7 @@ void SkoomaImageProcessor::prepareToPlay(double sampleRate, int /*samplesPerBloc
     corrLL = corrRR = corrLR = 0.0;
     correlation.store(0.0f, std::memory_order_release);
     minCorrelation.store(2.0f, std::memory_order_release);
+    hasSignal.store(false, std::memory_order_release);
     wasPlaying = false;
 }
 
@@ -84,8 +85,11 @@ void SkoomaImageProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::
     correlation.store(cClamped, std::memory_order_release);
 
     // Peak-hold the lowest correlation seen since transport start. Gate on
-    // there being actual signal energy (avoid latching on silence/DC).
-    if (ll > 1.0e-6 && rr > 1.0e-6)
+    // there being actual signal energy (avoid latching on silence/DC). The
+    // same energy gate also drives the editor's "is there live audio?" check.
+    const bool live = (ll > 1.0e-6 && rr > 1.0e-6);
+    hasSignal.store(live, std::memory_order_release);
+    if (live)
     {
         const float prevMin = minCorrelation.load(std::memory_order_relaxed);
         if (cClamped < prevMin)

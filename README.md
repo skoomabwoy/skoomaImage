@@ -5,7 +5,7 @@
 <td><img src="screenshots/light-theme.png" width="200"></td>
 </tr></table>
 
-Stereo image meter. Half-circle vectorscope: hard-L dots fly left, hard-R right, mono-centre straight up.
+Stereo image meter with Pearson correlation readout and worst-case peak-hold per playthrough. Half-circle vectorscope: hard-L dots fly left, hard-R right, mono-centre straight up.
 
 Part of a series of small, minimal VST3 plugins:
 - [skoomaTuner](https://github.com/skoomabwoy/skoomaTuner) (tuner)

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.22)
 set(CMAKE_POLICY_VERSION_MINIMUM 3.5 CACHE STRING "")
-project(SkoomaImage VERSION 1.0.0)
+project(SkoomaImage VERSION 1.0.1)
 
 # Bridge the shared skooma FetchContent cache (see skoomaTemplate DESIGN.md §3).
 # CMake's FetchContent reads FETCHCONTENT_BASE_DIR as a CMake variable, not an

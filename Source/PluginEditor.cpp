@@ -94,8 +94,11 @@ void SkoomaImageEditor::paint(juce::Graphics& g)
 
     // Upper-half-circle frame. Signal source (dot) sits on the diameter's
     // centre; hard-L is 9 o'clock, hard-R is 3 o'clock, mono is 12 o'clock.
+    // cy is aligned with the Y of the endpoint labels in Tuner/Loud
+    // (cy_sib + 0.65·r_sib·sin 135° ≈ 0.655·w) so the meter "centres" read
+    // the same across the family.
     float cx = w * 0.5f;
-    float cy = w * 0.62f;
+    float cy = w * 0.655f;
     float radius = w * 0.42f;
 
     // Half-circle frame. Flip `#if 0` → `#if 1` to bring it back.
@@ -156,23 +159,30 @@ void SkoomaImageEditor::paint(juce::Graphics& g)
         return juce::Colour(0xff4caf50);
     };
 
-    const float valH = 34.0f * scale;
-    const float valY = cy + 20.0f * scale;
-    g.setFont(monoFont.withHeight(valH));
-    g.setColour(corrColourFor(corrSmoothed));
-    g.drawText(juce::String::formatted("%+.1f", corrSmoothed),
-               juce::Rectangle<float>(0, valY, w, valH * 1.1f),
-               juce::Justification::centred, false);
+    // Unified text band across Tuner/Loud/Image: main at 0.76w, secondary at 0.89w.
+    const float mainH  = 34.0f * scale;
+    const float mainY  = 0.76f * w;
+    const float labelH = 14.0f * scale;
+    const float labelY = 0.89f * w;
+
+    // Main readout hidden while input is silent — matches Tuner (no freq) /
+    // Loud (−∞ LUFS). The "low" peak-hold below persists after playback.
+    if (processor.hasSignal.load(std::memory_order_acquire))
+    {
+        g.setFont(monoFont.withHeight(mainH));
+        g.setColour(corrColourFor(corrSmoothed));
+        g.drawText(juce::String::formatted("%+.1f", corrSmoothed),
+                   juce::Rectangle<float>(0, mainY, w, mainH),
+                   juce::Justification::centred, false);
+    }
 
     // Peak-hold "low" secondary readout — hidden until real data arrives.
     if (minCorrSmoothed <= 1.0f)
     {
-        const float labH = 14.0f * scale;
-        const float labY = valY + valH * 1.15f;
-        g.setFont(monoFont.withHeight(labH));
+        g.setFont(monoFont.withHeight(labelH));
         g.setColour(corrColourFor(minCorrSmoothed).withAlpha(0.75f));
         g.drawText(juce::String::formatted("%+.1f low", minCorrSmoothed),
-                   juce::Rectangle<float>(0, labY, w, labH * 1.3f),
+                   juce::Rectangle<float>(0, labelY, w, labelH),
                    juce::Justification::centred, false);
     }
 
